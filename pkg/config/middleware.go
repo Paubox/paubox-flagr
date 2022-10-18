@@ -202,13 +202,13 @@ type DecodedToken struct {
 	Entitlements []string `json:"entitlements"`
 }
 
-func (a *jwtAuth) isSuperAdmin(userReq *http.Request) bool {
+func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 	client := http.Client{}
 
 	req, err := http.NewRequest("GET", "https://iam.paubox.com/v1/token_entitlements", nil)
 
 	if err != nil {
-		return false
+		return DecodedToken{}, errors.New("failed to create request")
 	}
 
 	jwtGetter := FromFirst(FromCookie, FromAuthHeader)
@@ -216,7 +216,7 @@ func (a *jwtAuth) isSuperAdmin(userReq *http.Request) bool {
 	jwt, err := jwtGetter(userReq)
 
 	if err != nil {
-		return false
+		return DecodedToken{}, errors.New("failed to get JWT")
 	}
 
 	req.Header = http.Header{
@@ -225,13 +225,24 @@ func (a *jwtAuth) isSuperAdmin(userReq *http.Request) bool {
 
 	res, err := client.Do(req)
 	if err != nil {
-		return false
+		return DecodedToken{}, errors.New("failed to get token API request")
 	}
 
 	var decodedToken DecodedToken
 
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&decodedToken)
+
+	if err != nil {
+		return DecodedToken{}, errors.New("failed to convert req body")
+	}
+
+	return decodedToken, nil
+}
+
+func (a *jwtAuth) isSuperAdmin(req *http.Request) bool {
+
+	decodedToken, err := a.getToken(req)
 
 	if err != nil {
 		return false
