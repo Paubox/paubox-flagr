@@ -158,13 +158,12 @@ type TokenExtractor func(r *http.Request) (string, error)
 func FromAuthHeader(r *http.Request) (string, error) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		return "", nil // No error, just no token
+		return "", nil
 	}
 
-	// TODO: Make this a bit more robust, parsing-wise
 	authHeaderParts := strings.Fields(authHeader)
 	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
-		return "", errors.New("Authorization header format must be Bearer {token}")
+		return "", errors.New("authorization header format must be bearer {token}")
 	}
 
 	return authHeaderParts[1], nil
@@ -181,8 +180,6 @@ func FromCookie(r *http.Request) (string, error) {
 	return authHeader.Value, nil
 }
 
-// FromFirst returns a function that runs multiple token extractors and takes the
-// first token it finds
 func FromFirst(extractors ...TokenExtractor) TokenExtractor {
 	return func(r *http.Request) (string, error) {
 		for _, ex := range extractors {
@@ -253,6 +250,7 @@ func (a *jwtAuth) ServeHTTP(w http.ResponseWriter, req *http.Request, next http.
 		next(w, req)
 		return
 	}
+	jwtErrorHandler(w, req, "not a super admin")
 }
 
 type prometheusMiddleware struct {
