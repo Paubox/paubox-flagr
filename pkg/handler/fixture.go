@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/openflagr/flagr/pkg/entity"
-	"github.com/openflagr/flagr/pkg/util"
+	"github.com/paubox/paubox-flagr/pkg/entity"
+	"github.com/paubox/paubox-flagr/pkg/util"
 )
 
 // GenFixtureEvalCache generates a fixture

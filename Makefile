@@ -10,7 +10,7 @@ all: deps gen build run
 rebuild: gen build
 
 test: verifiers
-	@go test -race -covermode=atomic -coverprofile=coverage.txt github.com/openflagr/flagr/pkg/...
+	@go test -race -covermode=atomic -coverprofile=coverage.txt github.com/paubox/paubox-flagr/pkg/...
 
 .PHONY: benchmark
 benchmark:
@@ -25,7 +25,7 @@ vendor:
 
 build:
 	@echo "Building Flagr Server to $(PWD)/flagr ..."
-	@CGO_ENABLED=1 go build -o $(PWD)/flagr github.com/openflagr/flagr/swagger_gen/cmd/flagr-server
+	@CGO_ENABLED=1 go build -o $(PWD)/flagr github.com/paubox/paubox-flagr/swagger_gen/cmd/flagr-server
 
 run:
 	@$(PWD)/flagr --port 5020

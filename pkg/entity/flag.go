@@ -3,7 +3,7 @@ package entity
 import (
 	"fmt"
 
-	"github.com/openflagr/flagr/pkg/util"
+	"github.com/paubox/paubox-flagr/pkg/util"
 	"gorm.io/gorm"
 )
 

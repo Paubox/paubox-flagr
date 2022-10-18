@@ -17,7 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"github.com/openflagr/flagr/swagger_gen/models"
+	"github.com/paubox/paubox-flagr/swagger_gen/models"
 )
 
 // NewPutVariantParams creates a new PutVariantParams object

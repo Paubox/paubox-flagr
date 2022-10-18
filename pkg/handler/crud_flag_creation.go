@@ -2,9 +2,9 @@ package handler
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/openflagr/flagr/pkg/entity"
-	"github.com/openflagr/flagr/pkg/util"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/flag"
+	"github.com/paubox/paubox-flagr/pkg/entity"
+	"github.com/paubox/paubox-flagr/pkg/util"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/flag"
 	"gorm.io/gorm"
 )
 

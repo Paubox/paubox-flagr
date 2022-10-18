@@ -3,10 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/openflagr/flagr/pkg/config"
-	"github.com/openflagr/flagr/pkg/util"
-
-	jwt "github.com/form3tech-oss/jwt-go"
+	"github.com/paubox/paubox-flagr/pkg/config"
 )
 
 func getSubjectFromRequest(r *http.Request) string {
@@ -14,18 +11,10 @@ func getSubjectFromRequest(r *http.Request) string {
 		return ""
 	}
 
-	if config.Config.JWTAuthEnabled {
-		token, ok := r.Context().Value(config.Config.JWTAuthUserProperty).(*jwt.Token)
-		if !ok {
-			return ""
-		}
+	var token = r.Context().Value(config.TokenContextKey).(*config.DecodedToken)
 
-		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			return util.SafeString(claims[config.Config.JWTAuthUserClaim])
-		}
-
-	} else if config.Config.HeaderAuthEnabled {
-		return r.Header.Get(config.Config.HeaderAuthUserField)
+	if token.Email != "" {
+		return token.Email
 	}
 
 	return ""

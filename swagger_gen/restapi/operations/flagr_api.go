@@ -19,15 +19,15 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/constraint"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/distribution"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/evaluation"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/export"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/flag"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/health"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/segment"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/tag"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/variant"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/constraint"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/distribution"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/evaluation"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/export"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/flag"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/health"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/segment"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/tag"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/variant"
 )
 
 // NewFlagrAPI creates a new Flagr instance

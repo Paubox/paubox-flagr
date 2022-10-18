@@ -3,8 +3,8 @@ package handler
 import (
 	"fmt"
 
-	"github.com/openflagr/flagr/pkg/util"
-	"github.com/openflagr/flagr/swagger_gen/models"
+	"github.com/paubox/paubox-flagr/pkg/util"
+	"github.com/paubox/paubox-flagr/swagger_gen/models"
 )
 
 // Error is the handler error

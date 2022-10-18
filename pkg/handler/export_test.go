@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/openflagr/flagr/pkg/entity"
-	"github.com/openflagr/flagr/pkg/util"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/export"
+	"github.com/paubox/paubox-flagr/pkg/entity"
+	"github.com/paubox/paubox-flagr/pkg/util"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/export"
 	"github.com/prashantv/gostub"
 	"github.com/stretchr/testify/assert"
 )

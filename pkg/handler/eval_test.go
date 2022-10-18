@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/dchest/uniuri"
-	"github.com/openflagr/flagr/pkg/entity"
-	"github.com/openflagr/flagr/pkg/util"
-	"github.com/openflagr/flagr/swagger_gen/models"
-	"github.com/openflagr/flagr/swagger_gen/restapi/operations/evaluation"
+	"github.com/paubox/paubox-flagr/pkg/entity"
+	"github.com/paubox/paubox-flagr/pkg/util"
+	"github.com/paubox/paubox-flagr/swagger_gen/models"
+	"github.com/paubox/paubox-flagr/swagger_gen/restapi/operations/evaluation"
 
 	"github.com/prashantv/gostub"
 	"github.com/stretchr/testify/assert"

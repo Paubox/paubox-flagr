@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/openflagr/flagr/pkg/config"
-	"github.com/openflagr/flagr/pkg/util"
+	"github.com/paubox/paubox-flagr/pkg/config"
+	"github.com/paubox/paubox-flagr/pkg/util"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )

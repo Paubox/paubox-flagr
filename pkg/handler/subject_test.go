@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	jwt "github.com/form3tech-oss/jwt-go"
-	"github.com/openflagr/flagr/pkg/config"
+	"github.com/paubox/paubox-flagr/pkg/config"
 	"github.com/stretchr/testify/assert"
 )
 

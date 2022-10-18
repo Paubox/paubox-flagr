@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/openflagr/flagr/swagger_gen/models"
+	"github.com/paubox/paubox-flagr/swagger_gen/models"
 	"github.com/zhouzhuojie/conditions"
 	"gorm.io/gorm"
 )

@@ -10,7 +10,7 @@ import (
 	sqlite "gorm.io/driver/sqlite"     // sqlite driver
 
 	retry "github.com/avast/retry-go"
-	"github.com/openflagr/flagr/pkg/config"
+	"github.com/paubox/paubox-flagr/pkg/config"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	gorm_logger "gorm.io/gorm/logger"
@@ -44,18 +44,18 @@ func connectDB() (db *gorm.DB, err error) {
 	err = retry.Do(
 		func() error {
 			switch config.Config.DBDriver {
-				case "postgres":
-					db, err = gorm.Open(postgres.Open(config.Config.DBConnectionStr), &gorm.Config{
-						Logger: logger,
-					})
-				case "sqlite3":
-					db, err = gorm.Open(sqlite.Open(config.Config.DBConnectionStr), &gorm.Config{
-						Logger: logger,
-					})
-				case "mysql":
-					db, err = gorm.Open(mysql.Open(config.Config.DBConnectionStr), &gorm.Config{
-						Logger: logger,
-					})
+			case "postgres":
+				db, err = gorm.Open(postgres.Open(config.Config.DBConnectionStr), &gorm.Config{
+					Logger: logger,
+				})
+			case "sqlite3":
+				db, err = gorm.Open(sqlite.Open(config.Config.DBConnectionStr), &gorm.Config{
+					Logger: logger,
+				})
+			case "mysql":
+				db, err = gorm.Open(mysql.Open(config.Config.DBConnectionStr), &gorm.Config{
+					Logger: logger,
+				})
 			}
 			return err
 		},

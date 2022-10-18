@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -131,6 +132,7 @@ func jwtErrorHandler(w http.ResponseWriter, r *http.Request, err string) {
 type jwtAuth struct {
 	PrefixWhitelistPaths []string
 	ExactWhitelistPaths  []string
+	decodedToken         *DecodedToken
 }
 
 func (a *jwtAuth) whitelist(req *http.Request) bool {
@@ -201,6 +203,9 @@ type DecodedToken struct {
 	Roles        []string `json:"roles"`
 	Entitlements []string `json:"entitlements"`
 }
+type ContextKey string
+
+const TokenContextKey ContextKey = "token"
 
 func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 	client := http.Client{}
@@ -242,25 +247,43 @@ func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 
 func (a *jwtAuth) isSuperAdmin(req *http.Request) bool {
 
-	decodedToken, err := a.getToken(req)
+	if a.decodedToken == nil {
+		decodedToken, err := a.getToken(req)
 
-	if err != nil {
-		return false
+		if err != nil {
+			return false
+		}
+		a.decodedToken = &decodedToken
 	}
 
-	return slices.Contains(decodedToken.Roles, "super_admin")
+	return slices.Contains(a.decodedToken.Roles, "super_admin")
 }
 
 func (a *jwtAuth) ServeHTTP(w http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+
+	if a.decodedToken == nil {
+		decodedToken, err := a.getToken(req)
+		if err != nil {
+			jwtErrorHandler(w, req, "invalid token")
+			return
+		}
+		a.decodedToken = &decodedToken
+	}
+
+	ctxWithToken := context.WithValue(req.Context(), TokenContextKey, a.decodedToken)
+	//create a new request using that new context
+	reqWithToken := req.WithContext(ctxWithToken)
+
 	if a.whitelist(req) {
-		next(w, req)
+		next.ServeHTTP(w, reqWithToken)
 		return
 	}
 
 	if a.isSuperAdmin(req) {
-		next(w, req)
+		next.ServeHTTP(w, reqWithToken)
 		return
 	}
+
 	jwtErrorHandler(w, req, "not a super admin")
 }
 

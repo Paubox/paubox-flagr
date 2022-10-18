@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"cloud.google.com/go/pubsub"
-	"github.com/openflagr/flagr/pkg/config"
-	"github.com/openflagr/flagr/swagger_gen/models"
+	"github.com/paubox/paubox-flagr/pkg/config"
+	"github.com/paubox/paubox-flagr/swagger_gen/models"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 )

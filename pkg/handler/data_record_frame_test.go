@@ -3,7 +3,7 @@ package handler
 import (
 	"testing"
 
-	"github.com/openflagr/flagr/swagger_gen/models"
+	"github.com/paubox/paubox-flagr/swagger_gen/models"
 	"github.com/stretchr/testify/assert"
 )
 

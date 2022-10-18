@@ -1,4 +1,4 @@
-module github.com/openflagr/flagr
+module github.com/paubox/paubox-flagr
 
 go 1.19
 
