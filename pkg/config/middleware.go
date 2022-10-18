@@ -1,16 +1,14 @@
 package config
 
 import (
-	"crypto/subtle"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/DataDog/datadog-go/statsd"
-	jwtmiddleware "github.com/auth0/go-jwt-middleware"
-	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/gohttp/pprof"
 	negronilogrus "github.com/meatballhat/negroni-logrus"
 	"github.com/phyber/negroni-gzip/gzip"
@@ -20,6 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
 	negroninewrelic "github.com/yadvendar/negroni-newrelic-go-agent"
+	"golang.org/x/exp/slices"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
@@ -49,17 +48,6 @@ func SetupGlobalMiddleware(handler http.Handler) http.Handler {
 		n.Use(middleware)
 	}
 
-	if Config.StatsdEnabled {
-		n.Use(&statsdMiddleware{StatsdClient: Global.StatsdClient})
-
-		if Config.StatsdAPMEnabled {
-			tracer.Start(
-				tracer.WithAgentAddr(fmt.Sprintf("%s:%s", Config.StatsdHost, Config.StatsdAPMPort)),
-				tracer.WithServiceName(Config.StatsdAPMServiceName),
-			)
-		}
-	}
-
 	if Config.PrometheusEnabled {
 		n.Use(&prometheusMiddleware{
 			counter:   Global.Prometheus.RequestCounter,
@@ -84,16 +72,6 @@ func SetupGlobalMiddleware(handler http.Handler) http.Handler {
 	if Config.JWTAuthEnabled {
 		n.Use(setupJWTAuthMiddleware())
 	}
-
-	if Config.BasicAuthEnabled {
-		n.Use(setupBasicAuthMiddleware())
-	}
-
-	n.Use(&negroni.Static{
-		Dir:       http.Dir("./browser/flagr-ui/dist/"),
-		Prefix:    Config.WebPrefix,
-		IndexFile: "index.html",
-	})
 
 	n.Use(setupRecoveryMiddleware())
 
@@ -126,51 +104,15 @@ func setupRecoveryMiddleware() *negroni.Recovery {
 	return r
 }
 
-/**
+/*
+*
 setupJWTAuthMiddleware setup an JWTMiddleware from the ENV config
 */
 func setupJWTAuthMiddleware() *jwtAuth {
-	var signingMethod jwt.SigningMethod
-	var validationKey interface{}
-	var errParsingKey error
-
-	switch Config.JWTAuthSigningMethod {
-	case "HS256":
-		signingMethod = jwt.SigningMethodHS256
-		validationKey = []byte(Config.JWTAuthSecret)
-	case "HS512":
-		signingMethod = jwt.SigningMethodHS512
-		validationKey = []byte(Config.JWTAuthSecret)
-	case "RS256":
-		signingMethod = jwt.SigningMethodRS256
-		validationKey, errParsingKey = jwt.ParseRSAPublicKeyFromPEM([]byte(Config.JWTAuthSecret))
-	default:
-		signingMethod = jwt.SigningMethodHS256
-		validationKey = []byte("")
-	}
 
 	return &jwtAuth{
 		PrefixWhitelistPaths: Config.JWTAuthPrefixWhitelistPaths,
 		ExactWhitelistPaths:  Config.JWTAuthExactWhitelistPaths,
-		JWTMiddleware: jwtmiddleware.New(jwtmiddleware.Options{
-			ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-				return validationKey, errParsingKey
-			},
-			SigningMethod: signingMethod,
-			Extractor: jwtmiddleware.FromFirst(
-				func(r *http.Request) (string, error) {
-					c, err := r.Cookie(Config.JWTAuthCookieTokenName)
-					if err != nil {
-						return "", nil
-					}
-					return c.Value, nil
-				},
-				jwtmiddleware.FromAuthHeader,
-			),
-			UserProperty: Config.JWTAuthUserProperty,
-			Debug:        Config.JWTAuthDebug,
-			ErrorHandler: jwtErrorHandler,
-		}),
 	}
 }
 
@@ -189,7 +131,6 @@ func jwtErrorHandler(w http.ResponseWriter, r *http.Request, err string) {
 type jwtAuth struct {
 	PrefixWhitelistPaths []string
 	ExactWhitelistPaths  []string
-	JWTMiddleware        *jwtmiddleware.JWTMiddleware
 }
 
 func (a *jwtAuth) whitelist(req *http.Request) bool {
@@ -212,86 +153,106 @@ func (a *jwtAuth) whitelist(req *http.Request) bool {
 	return false
 }
 
+type TokenExtractor func(r *http.Request) (string, error)
+
+func FromAuthHeader(r *http.Request) (string, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", nil // No error, just no token
+	}
+
+	// TODO: Make this a bit more robust, parsing-wise
+	authHeaderParts := strings.Fields(authHeader)
+	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
+		return "", errors.New("Authorization header format must be Bearer {token}")
+	}
+
+	return authHeaderParts[1], nil
+}
+
+func FromCookie(r *http.Request) (string, error) {
+
+	authHeader, err := r.Cookie(Config.JWTAuthCookieTokenName)
+
+	if err != nil {
+		return "", err
+	}
+
+	return authHeader.Value, nil
+}
+
+// FromFirst returns a function that runs multiple token extractors and takes the
+// first token it finds
+func FromFirst(extractors ...TokenExtractor) TokenExtractor {
+	return func(r *http.Request) (string, error) {
+		for _, ex := range extractors {
+			token, _ := ex(r)
+			if token != "" {
+				return token, nil
+			}
+		}
+		return "", errors.New("no cookie found")
+	}
+}
+
+type DecodedToken struct {
+	Id           int      `json:"id"`
+	Name         string   `json:"name"`
+	Email        string   `json:"email"`
+	CustomerId   int      `json:"customer_id"`
+	Customer     string   `json:"customer"`
+	Roles        []string `json:"roles"`
+	Entitlements []string `json:"entitlements"`
+}
+
+func (a *jwtAuth) isSuperAdmin(userReq *http.Request) bool {
+	client := http.Client{}
+
+	req, err := http.NewRequest("GET", "https://iam.paubox.com/v1/token_entitlements", nil)
+
+	if err != nil {
+		return false
+	}
+
+	jwtGetter := FromFirst(FromCookie, FromAuthHeader)
+
+	jwt, err := jwtGetter(userReq)
+
+	if err != nil {
+		return false
+	}
+
+	req.Header = http.Header{
+		"Authorization": {"Bearer " + jwt},
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+
+	var decodedToken DecodedToken
+
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&decodedToken)
+
+	if err != nil {
+		return false
+	}
+
+	return slices.Contains(decodedToken.Roles, "super_admin")
+}
+
 func (a *jwtAuth) ServeHTTP(w http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 	if a.whitelist(req) {
 		next(w, req)
 		return
 	}
-	a.JWTMiddleware.HandlerWithNext(w, req, next)
-}
 
-/**
-setupBasicAuthMiddleware setup an BasicMiddleware from the ENV config
-*/
-func setupBasicAuthMiddleware() *basicAuth {
-	return &basicAuth{
-		Username:             []byte(Config.BasicAuthUsername),
-		Password:             []byte(Config.BasicAuthPassword),
-		PrefixWhitelistPaths: Config.BasicAuthPrefixWhitelistPaths,
-		ExactWhitelistPaths:  Config.BasicAuthExactWhitelistPaths,
-	}
-}
-
-type basicAuth struct {
-	Username             []byte
-	Password             []byte
-	PrefixWhitelistPaths []string
-	ExactWhitelistPaths  []string
-}
-
-func (a *basicAuth) whitelist(req *http.Request) bool {
-	path := req.URL.Path
-
-	for _, p := range a.ExactWhitelistPaths {
-		if p == path {
-			return true
-		}
-	}
-
-	for _, p := range a.PrefixWhitelistPaths {
-		if p != "" && strings.HasPrefix(path, p) {
-			return true
-		}
-	}
-	return false
-}
-
-func (a *basicAuth) ServeHTTP(w http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
-	if a.whitelist(req) {
+	if a.isSuperAdmin(req) {
 		next(w, req)
 		return
 	}
-
-	username, password, ok := req.BasicAuth()
-	if !ok || subtle.ConstantTimeCompare(a.Username, []byte(username)) != 1 || subtle.ConstantTimeCompare(a.Password, []byte(password)) != 1 {
-		w.Header().Set("WWW-Authenticate", `Basic realm="you shall not pass"`)
-		http.Error(w, "Not authorized", http.StatusUnauthorized)
-		return
-	}
-
-	next(w, req)
-}
-
-type statsdMiddleware struct {
-	StatsdClient *statsd.Client
-}
-
-func (s *statsdMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	defer func(start time.Time) {
-		response := w.(negroni.ResponseWriter)
-		status := strconv.Itoa(response.Status())
-		duration := float64(time.Since(start)) / float64(time.Millisecond)
-		tags := []string{
-			"status:" + status,
-			"path:" + r.RequestURI,
-			"method:" + r.Method,
-		}
-
-		s.StatsdClient.Incr("http.requests.count", tags, 1)
-		s.StatsdClient.TimeInMilliseconds("http.requests.duration", duration, tags, 1)
-	}(time.Now())
-
-	next(w, r)
 }
 
 type prometheusMiddleware struct {

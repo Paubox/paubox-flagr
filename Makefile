@@ -1,12 +1,11 @@
 PWD := $(shell pwd)
 GOPATH := $(shell go env GOPATH)
-UIPATH := $(PWD)/browser/flagr-ui
 
 ################################
 ### Public
 ################################
 
-all: deps gen build build_ui run
+all: deps gen build run
 
 rebuild: gen build
 
@@ -28,18 +27,10 @@ build:
 	@echo "Building Flagr Server to $(PWD)/flagr ..."
 	@CGO_ENABLED=1 go build -o $(PWD)/flagr github.com/openflagr/flagr/swagger_gen/cmd/flagr-server
 
-build_ui:
-	@echo "Building Flagr UI ..."
-	@cd ./browser/flagr-ui/; npm install && npm run build
-
-run_ui:
-	@cd ./browser/flagr-ui/; npm run serve
-
 run:
-	@$(PWD)/flagr --port 18000
-
+	@$(PWD)/flagr --port 5020
 start:
-	$(MAKE) -j run run_ui
+	$(MAKE) -j run
 
 gen: api_docs swagger
 

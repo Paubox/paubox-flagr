@@ -7,7 +7,7 @@ var Config = struct {
 	// Host - Flagr server host
 	Host string `env:"HOST" envDefault:"localhost"`
 	// Port - Flagr server port
-	Port int `env:"PORT" envDefault:"18000"`
+	Port int `env:"PORT" envDefault:"5020"`
 
 	// LogrusLevel sets the logrus logging level
 	LogrusLevel string `env:"FLAGR_LOGRUS_LEVEL" envDefault:"info"`
@@ -184,15 +184,15 @@ var Config = struct {
 	Note:
 		If the access_token is present in both the header and cookie only the latest will be used
 	*/
-	JWTAuthEnabled              bool     `env:"FLAGR_JWT_AUTH_ENABLED" envDefault:"false"`
-	JWTAuthDebug                bool     `env:"FLAGR_JWT_AUTH_DEBUG" envDefault:"false"`
+	JWTAuthEnabled              bool     `env:"FLAGR_JWT_AUTH_ENABLED" envDefault:"true"`
+	JWTAuthDebug                bool     `env:"FLAGR_JWT_AUTH_DEBUG" envDefault:"true"`
 	JWTAuthPrefixWhitelistPaths []string `env:"FLAGR_JWT_AUTH_WHITELIST_PATHS" envDefault:"/api/v1/health,/api/v1/evaluation,/static" envSeparator:","`
 	JWTAuthExactWhitelistPaths  []string `env:"FLAGR_JWT_AUTH_EXACT_WHITELIST_PATHS" envDefault:",/" envSeparator:","`
-	JWTAuthCookieTokenName      string   `env:"FLAGR_JWT_AUTH_COOKIE_TOKEN_NAME" envDefault:"access_token"`
-	JWTAuthSecret               string   `env:"FLAGR_JWT_AUTH_SECRET" envDefault:""`
+	JWTAuthCookieTokenName      string   `env:"FLAGR_JWT_AUTH_COOKIE_TOKEN_NAME" envDefault:"test"`
+	JWTAuthSecret               string   `env:"FLAGR_JWT_AUTH_SECRET" envDefault:"deez"`
 	JWTAuthNoTokenStatusCode    int      `env:"FLAGR_JWT_AUTH_NO_TOKEN_STATUS_CODE" envDefault:"307"` // "307" or "401"
 	JWTAuthNoTokenRedirectURL   string   `env:"FLAGR_JWT_AUTH_NO_TOKEN_REDIRECT_URL" envDefault:""`
-	JWTAuthUserProperty         string   `env:"FLAGR_JWT_AUTH_USER_PROPERTY" envDefault:"flagr_user"`
+	JWTAuthUserProperty         string   `env:"FLAGR_JWT_AUTH_USER_PROPERTY" envDefault:"eml"`
 	// JWTAuthUserClaim can be used as the indicator of a user for created_by or updated_by.
 	// E.g. sub, email, user, name, and etc in a JWT token.
 	JWTAuthUserClaim string `env:"FLAGR_JWT_AUTH_USER_CLAIM" envDefault:"sub"`
