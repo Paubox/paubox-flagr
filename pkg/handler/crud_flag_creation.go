@@ -20,6 +20,7 @@ func (c *crud) CreateFlag(params flag.CreateFlagParams) middleware.Responder {
 				ErrorMessage("cannot create flag. %s", err))
 		}
 		f.Key = key
+		f.Enabled = true
 	}
 
 	tx := getDB().Begin()
@@ -30,7 +31,7 @@ func (c *crud) CreateFlag(params flag.CreateFlagParams) middleware.Responder {
 			ErrorMessage("cannot create flag. %s", err))
 	}
 
-	if params.Body.Template == "simple_boolean_flag" {
+	if params.Body.Template == "feature_flag" {
 		if err := LoadSimpleBooleanFlagTemplate(f, tx); err != nil {
 			tx.Rollback()
 			return flag.NewCreateFlagDefault(500).WithPayload(
@@ -68,6 +69,7 @@ func LoadSimpleBooleanFlagTemplate(flag *entity.Flag, tx *gorm.DB) error {
 	s.FlagID = flag.ID
 	s.RolloutPercent = uint(100)
 	s.Rank = entity.SegmentDefaultRank
+	s.Description = "Default Slider"
 
 	if err := tx.Create(s).Error; err != nil {
 		return err
@@ -78,23 +80,41 @@ func LoadSimpleBooleanFlagTemplate(flag *entity.Flag, tx *gorm.DB) error {
 	v.FlagID = flag.ID
 	v.Key = "on"
 
+	v2 := &entity.Variant{}
+	v2.FlagID = flag.ID
+	v2.Key = "off"
+
 	if err := tx.Create(v).Error; err != nil {
+		return err
+	}
+
+	if err := tx.Create(v2).Error; err != nil {
 		return err
 	}
 
 	// .. and our default Distribution
 	d := &entity.Distribution{}
 	d.SegmentID = s.ID
-	d.VariantID = v.ID
-	d.VariantKey = v.Key
+	d.VariantID = v2.ID
+	d.VariantKey = v2.Key
 	d.Percent = uint(100)
+
+	d2 := &entity.Distribution{}
+	d2.SegmentID = s.ID
+	d2.VariantID = v.ID
+	d2.VariantKey = v.Key
+	d2.Percent = uint(0)
 
 	if err := tx.Create(d).Error; err != nil {
 		return err
 	}
 
+	if err := tx.Create(d2).Error; err != nil {
+		return err
+	}
+
 	s.Distributions = append(s.Distributions, *d)
-	flag.Variants = append(flag.Variants, *v)
+	flag.Variants = append(flag.Variants, *v, *v2)
 	flag.Segments = append(flag.Segments, *s)
 
 	return nil
