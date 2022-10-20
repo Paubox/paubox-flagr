@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"sync"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 
 	"github.com/bsm/ratelimit"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/zhouzhuojie/conditions"
 )
@@ -35,6 +37,24 @@ type eval struct{}
 
 func (e *eval) PostEvaluation(params evaluation.PostEvaluationParams) middleware.Responder {
 	evalContext := params.Body
+
+	cookie, err := params.HTTPRequest.Cookie("pbiam_session")
+
+	if err == nil {
+		token, _, err := new(jwt.Parser).ParseUnverified(cookie.Value, jwt.MapClaims{})
+
+		if err == nil {
+
+			if claims, ok := token.Claims.(jwt.MapClaims); ok {
+				evalContext.AddIfMissingField("cus", string(claims["cus"].(string)))
+				evalContext.AddField("eml", string(claims["eml"].(string)))
+				evalContext.AddIfMissingField("cid", strconv.Itoa(int(claims["cid"].(float64))))
+				evalContext.AddField("nam", string(claims["nam"].(string)))
+				evalContext.AddField("uid", strconv.Itoa(int(claims["uid"].(float64))))
+			}
+		}
+	}
+
 	if evalContext == nil {
 		return evaluation.NewPostEvaluationDefault(400).WithPayload(
 			ErrorMessage("empty body"))
@@ -55,7 +75,27 @@ func (e *eval) PostEvaluationBatch(params evaluation.PostEvaluationBatchParams) 
 	results := &models.EvaluationBatchResponse{}
 
 	// TODO make it concurrent
-	for _, entity := range entities {
+	for i, entity := range entities {
+
+		if i == 0 {
+			cookie, err := params.HTTPRequest.Cookie("pbiam_session")
+
+			if err == nil {
+				token, _, err := new(jwt.Parser).ParseUnverified(cookie.Value, jwt.MapClaims{})
+
+				if err == nil {
+
+					if claims, ok := token.Claims.(jwt.MapClaims); ok {
+						entity.AddIfMissingField("cus", string(claims["cus"].(string)))
+						entity.AddField("eml", string(claims["eml"].(string)))
+						entity.AddIfMissingField("cid", strconv.Itoa(int(claims["cid"].(float64))))
+						entity.AddField("nam", string(claims["nam"].(string)))
+						entity.AddField("uid", strconv.Itoa(int(claims["uid"].(float64))))
+					}
+				}
+			}
+		}
+
 		if len(flagTags) > 0 {
 			evalContext := models.EvalContext{
 				EnableDebug:      params.Body.EnableDebug,

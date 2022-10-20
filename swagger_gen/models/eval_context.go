@@ -47,6 +47,21 @@ type EvalContext struct {
 	FlagTagsOperator *string `json:"flagTagsOperator,omitempty"`
 }
 
+func (m *EvalContext) AddField(key, value string) {
+    v, _ := m.EntityContext.(map[string]interface{})
+    v[key] = value
+    m.EntityContext = v
+}
+
+func (m *EvalContext) AddIfMissingField(key, value string) {
+    v, _ := m.EntityContext.(map[string]interface{})
+	if (v[key] != nil) {
+		return
+	}
+    v[key] = value
+    m.EntityContext = v
+}
+
 // Validate validates this eval context
 func (m *EvalContext) Validate(formats strfmt.Registry) error {
 	var res []error

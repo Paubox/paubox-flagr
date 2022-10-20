@@ -32,9 +32,9 @@ var Config = struct {
 	// Note that this is a global switch:
 	//     if it's disabled, no evaluation debug info will be returned.
 	//     if it's enabled, it respects evaluation request's enableDebug field
-	EvalDebugEnabled bool `env:"FLAGR_EVAL_DEBUG_ENABLED" envDefault:"true"`
+	EvalDebugEnabled bool `env:"FLAGR_EVAL_DEBUG_ENABLED" envDefault:"false"`
 	// EvalLoggingEnabled - to enable the logging for eval results
-	EvalLoggingEnabled bool `env:"FLAGR_EVAL_LOGGING_ENABLED" envDefault:"true"`
+	EvalLoggingEnabled bool `env:"FLAGR_EVAL_LOGGING_ENABLED" envDefault:"false"`
 	// EvalCacheRefreshTimeout - timeout of getting the flags data from DB into the in-memory evaluation cache
 	EvalCacheRefreshTimeout time.Duration `env:"FLAGR_EVALCACHE_REFRESHTIMEOUT" envDefault:"59s"`
 	// EvalCacheRefreshInterval - time interval of getting the flags data from DB into the in-memory evaluation cache
@@ -185,7 +185,7 @@ var Config = struct {
 		If the access_token is present in both the header and cookie only the latest will be used
 	*/
 	JWTAuthEnabled              bool     `env:"FLAGR_JWT_AUTH_ENABLED" envDefault:"true"`
-	JWTAuthDebug                bool     `env:"FLAGR_JWT_AUTH_DEBUG" envDefault:"true"`
+	JWTAuthDebug                bool     `env:"FLAGR_JWT_AUTH_DEBUG" envDefault:"false"`
 	JWTAuthPrefixWhitelistPaths []string `env:"FLAGR_JWT_AUTH_WHITELIST_PATHS" envDefault:"/api/v1/health,/api/v1/evaluation,/static" envSeparator:","`
 	JWTAuthExactWhitelistPaths  []string `env:"FLAGR_JWT_AUTH_EXACT_WHITELIST_PATHS" envDefault:",/" envSeparator:","`
 	JWTAuthCookieTokenName      string   `env:"FLAGR_JWT_AUTH_COOKIE_TOKEN_NAME" envDefault:"test"`

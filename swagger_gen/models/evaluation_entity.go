@@ -27,6 +27,22 @@ type EvaluationEntity struct {
 	EntityType string `json:"entityType,omitempty"`
 }
 
+func (m *EvaluationEntity) AddField(key, value string) {
+    v, _ := m.EntityContext.(map[string]interface{})
+    v[key] = value
+    m.EntityContext = v
+}
+
+func (m *EvaluationEntity) AddIfMissingField(key, value string) {
+    v, _ := m.EntityContext.(map[string]interface{})
+	if (v[key] != nil) {
+		return
+	}
+    v[key] = value
+    m.EntityContext = v
+}
+
+
 // Validate validates this evaluation entity
 func (m *EvaluationEntity) Validate(formats strfmt.Registry) error {
 	return nil
