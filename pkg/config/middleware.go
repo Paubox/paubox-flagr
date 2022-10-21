@@ -247,30 +247,20 @@ func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 
 func (a *jwtAuth) isSuperAdmin(req *http.Request) bool {
 
-	if a.decodedToken == nil {
-		decodedToken, err := a.getToken(req)
+	decodedToken, err := a.getToken(req)
 
-		if err != nil {
-			return false
-		}
-		a.decodedToken = &decodedToken
+	if err != nil {
+		return false
 	}
 
-	return slices.Contains(a.decodedToken.Roles, "super_admin")
+	return slices.Contains(decodedToken.Roles, "super_admin")
 }
 
 func (a *jwtAuth) ServeHTTP(w http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 
-	if a.decodedToken == nil {
-		decodedToken, err := a.getToken(req)
-		if err != nil {
-			jwtErrorHandler(w, req, "invalid token")
-			return
-		}
-		a.decodedToken = &decodedToken
-	}
+	decodedToken, _ := a.getToken(req)
 
-	ctxWithToken := context.WithValue(req.Context(), TokenContextKey, a.decodedToken)
+	ctxWithToken := context.WithValue(req.Context(), TokenContextKey, decodedToken)
 	//create a new request using that new context
 	reqWithToken := req.WithContext(ctxWithToken)
 
