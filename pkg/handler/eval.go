@@ -38,10 +38,11 @@ type eval struct{}
 func (e *eval) PostEvaluation(params evaluation.PostEvaluationParams) middleware.Responder {
 	evalContext := params.Body
 
-	cookie, err := params.HTTPRequest.Cookie("pbiam_session")
+	jwtGetter := config.FromFirst(config.FromCookie, config.FromAuthHeader)
+	jsonwebt, err := jwtGetter(params.HTTPRequest)
 
 	if err == nil {
-		token, _, err := new(jwt.Parser).ParseUnverified(cookie.Value, jwt.MapClaims{})
+		token, _, err := new(jwt.Parser).ParseUnverified(jsonwebt, jwt.MapClaims{})
 
 		if err == nil {
 
@@ -78,10 +79,11 @@ func (e *eval) PostEvaluationBatch(params evaluation.PostEvaluationBatchParams) 
 	for i, entity := range entities {
 
 		if i == 0 {
-			cookie, err := params.HTTPRequest.Cookie("pbiam_session")
+			jwtGetter := config.FromFirst(config.FromCookie, config.FromAuthHeader)
+			jsonwebt, err := jwtGetter(params.HTTPRequest)
 
 			if err == nil {
-				token, _, err := new(jwt.Parser).ParseUnverified(cookie.Value, jwt.MapClaims{})
+				token, _, err := new(jwt.Parser).ParseUnverified(jsonwebt, jwt.MapClaims{})
 
 				if err == nil {
 
