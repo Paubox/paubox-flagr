@@ -188,11 +188,13 @@ var Config = struct {
 	JWTAuthDebug                bool     `env:"FLAGR_JWT_AUTH_DEBUG" envDefault:"false"`
 	JWTAuthPrefixWhitelistPaths []string `env:"FLAGR_JWT_AUTH_WHITELIST_PATHS" envDefault:"/api/v1/health,/api/v1/evaluation,/static" envSeparator:","`
 	JWTAuthExactWhitelistPaths  []string `env:"FLAGR_JWT_AUTH_EXACT_WHITELIST_PATHS" envDefault:",/" envSeparator:","`
-	JWTAuthCookieTokenName      string   `env:"FLAGR_JWT_AUTH_COOKIE_TOKEN_NAME" envDefault:"test"`
+	JWTAuthCookieTokenName      string   `env:"FLAGR_JWT_AUTH_COOKIE_TOKEN_NAME" envDefault:"pbiam_session"`
 	JWTAuthSecret               string   `env:"FLAGR_JWT_AUTH_SECRET" envDefault:"deez"`
-	JWTAuthNoTokenStatusCode    int      `env:"FLAGR_JWT_AUTH_NO_TOKEN_STATUS_CODE" envDefault:"307"` // "307" or "401"
+	JWTAuthNoTokenStatusCode    int      `env:"FLAGR_JWT_AUTH_NO_TOKEN_STATUS_CODE" envDefault:"401"` // "307" or "401"
 	JWTAuthNoTokenRedirectURL   string   `env:"FLAGR_JWT_AUTH_NO_TOKEN_REDIRECT_URL" envDefault:""`
-	JWTAuthUserProperty         string   `env:"FLAGR_JWT_AUTH_USER_PROPERTY" envDefault:"eml"`
+	JWTAuthUserProperty         string   `env:"FLAGR_JWT_AUTH_USER_PROPERTY" envDefault:"uid"`
+	BaseApiUrl					string   `env:"BASE_API_URL" envDefault:"https://apx.paubox.com"`
+
 	// JWTAuthUserClaim can be used as the indicator of a user for created_by or updated_by.
 	// E.g. sub, email, user, name, and etc in a JWT token.
 	JWTAuthUserClaim string `env:"FLAGR_JWT_AUTH_USER_CLAIM" envDefault:"sub"`

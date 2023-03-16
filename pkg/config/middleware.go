@@ -21,6 +21,7 @@ import (
 	negroninewrelic "github.com/yadvendar/negroni-newrelic-go-agent"
 	"golang.org/x/exp/slices"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	// "log"
 )
 
 // ServerShutdown is a callback function that will be called when
@@ -210,13 +211,19 @@ const TokenContextKey ContextKey = "token"
 func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 	client := http.Client{}
 
-	req, err := http.NewRequest("GET", "https://iam.paubox.com/v1/token_entitlements", nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/iam/v1/token_entitlements", Config.BaseApiUrl), nil)
+
+	// log.Println(fmt.Sprintf("%s/iam/v1/token_entitlements", Config.BaseApiUrl))
 
 	if err != nil {
 		return DecodedToken{}, errors.New("failed to create request")
 	}
 
+	
+
 	jwtGetter := FromFirst(FromCookie, FromAuthHeader)
+
+
 
 	jwt, err := jwtGetter(userReq)
 
@@ -241,6 +248,8 @@ func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 	if err != nil {
 		return DecodedToken{}, errors.New("failed to convert req body")
 	}
+
+
 
 	return decodedToken, nil
 }
@@ -273,6 +282,8 @@ func (a *jwtAuth) ServeHTTP(w http.ResponseWriter, req *http.Request, next http.
 		next.ServeHTTP(w, reqWithToken)
 		return
 	}
+
+
 
 	jwtErrorHandler(w, req, "not a super admin")
 }
