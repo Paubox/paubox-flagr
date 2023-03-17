@@ -100,10 +100,11 @@ func (e *eval) PostEvaluationBatch(params evaluation.PostEvaluationBatchParams) 
 
 				}
 
+				entity.FieldToInt("cid")
+				entity.FieldToInt("uid")
+
 			}
 
-			entity.FieldToInt("cid")
-			entity.FieldToInt("uid")
 		}
 
 		if len(flagTags) > 0 {

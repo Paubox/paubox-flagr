@@ -61,16 +61,14 @@ func (m *EvalContext) FieldToInt(key string) {
         return
     }
 	
-	intValue, ok := v[key].(int)
-
+	stringg, ok := v[key].(string)
 	if ok {
-		return
+		intValue, err := strconv.Atoi((stringg))
+		if err == nil {
+			v[key] = intValue
+		}
 	}
-
-    intValue, err := strconv.Atoi(string(v[key].(string)))
-    if err == nil {
-		v[key] = intValue
-	}
+	
     m.EntityContext = v
 }
 
