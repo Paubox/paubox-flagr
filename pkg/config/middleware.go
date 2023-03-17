@@ -21,7 +21,6 @@ import (
 	negroninewrelic "github.com/yadvendar/negroni-newrelic-go-agent"
 	"golang.org/x/exp/slices"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
-	// "log"
 )
 
 // ServerShutdown is a callback function that will be called when
@@ -63,11 +62,13 @@ func SetupGlobalMiddleware(handler http.Handler) http.Handler {
 
 	if Config.CORSEnabled {
 		n.Use(cors.New(cors.Options{
-			AllowedOrigins:   Config.CORSAllowedOrigins,
 			AllowedHeaders:   Config.CORSAllowedHeaders,
 			ExposedHeaders:   Config.CORSExposedHeaders,
 			AllowedMethods:   Config.CORSAllowedMethods,
 			AllowCredentials: Config.CORSAllowCredentials,
+			AllowOriginFunc: func(origin string) bool {
+				return true
+			},
 		}))
 	}
 
@@ -213,17 +214,11 @@ func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/iam/v1/token_entitlements", Config.BaseApiUrl), nil)
 
-	// log.Println(fmt.Sprintf("%s/iam/v1/token_entitlements", Config.BaseApiUrl))
-
 	if err != nil {
 		return DecodedToken{}, errors.New("failed to create request")
 	}
 
-	
-
 	jwtGetter := FromFirst(FromCookie, FromAuthHeader)
-
-
 
 	jwt, err := jwtGetter(userReq)
 
@@ -236,6 +231,7 @@ func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 	}
 
 	res, err := client.Do(req)
+
 	if err != nil {
 		return DecodedToken{}, errors.New("failed to get token API request")
 	}
@@ -248,8 +244,6 @@ func (a *jwtAuth) getToken(userReq *http.Request) (DecodedToken, error) {
 	if err != nil {
 		return DecodedToken{}, errors.New("failed to convert req body")
 	}
-
-
 
 	return decodedToken, nil
 }
@@ -282,8 +276,6 @@ func (a *jwtAuth) ServeHTTP(w http.ResponseWriter, req *http.Request, next http.
 		next.ServeHTTP(w, reqWithToken)
 		return
 	}
-
-
 
 	jwtErrorHandler(w, req, "not a super admin")
 }

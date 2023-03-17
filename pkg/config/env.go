@@ -73,8 +73,8 @@ var Config = struct {
 	// CORSEnabled - enable CORS
 	CORSEnabled          bool     `env:"FLAGR_CORS_ENABLED" envDefault:"true"`
 	CORSAllowCredentials bool     `env:"FLAGR_CORS_ALLOW_CREDENTIALS" envDefault:"true"`
-	CORSAllowedHeaders   []string `env:"FLAGR_CORS_ALLOWED_HEADERS" envDefault:"Origin,Accept,Content-Type,X-Requested-With,Authorization,Time_Zone" envSeparator:","`
-	CORSAllowedMethods   []string `env:"FLAGR_CORS_ALLOWED_METHODS" envDefault:"GET,POST,PUT,DELETE,PATCH" envSeparator:","`
+	CORSAllowedHeaders   []string `env:"FLAGR_CORS_ALLOWED_HEADERS" envDefault:"Origin,Accept,Content-Type,X-Requested-With,Authorization,Time_Zone,X_PBJ_IMP,X_PBJ_TOKEN" envSeparator:","`
+	CORSAllowedMethods   []string `env:"FLAGR_CORS_ALLOWED_METHODS" envDefault:"GET,POST,PUT,DELETE,PATCH,OPTIONS" envSeparator:","`
 	CORSAllowedOrigins   []string `env:"FLAGR_CORS_ALLOWED_ORIGINS" envDefault:"*" envSeparator:","`
 	CORSExposedHeaders   []string `env:"FLAGR_CORS_EXPOSED_HEADERS" envDefault:"WWW-Authenticate" envSeparator:","`
 
@@ -193,9 +193,7 @@ var Config = struct {
 	JWTAuthNoTokenStatusCode    int      `env:"FLAGR_JWT_AUTH_NO_TOKEN_STATUS_CODE" envDefault:"401"` // "307" or "401"
 	JWTAuthNoTokenRedirectURL   string   `env:"FLAGR_JWT_AUTH_NO_TOKEN_REDIRECT_URL" envDefault:""`
 	JWTAuthUserProperty         string   `env:"FLAGR_JWT_AUTH_USER_PROPERTY" envDefault:"uid"`
-	BaseApiUrl					string   `env:"BASE_API_URL" envDefault:"https://apx.paubox.com"`
-
-	// JWTAuthUserClaim can be used as the indicator of a user for created_by or updated_by.
+	BaseApiUrl                  string   `env:"BASE_API_URL" envDefault:"https://apx.paubox.com"` // JWTAuthUserClaim can be used as the indicator of a user for created_by or updated_by.
 	// E.g. sub, email, user, name, and etc in a JWT token.
 	JWTAuthUserClaim string `env:"FLAGR_JWT_AUTH_USER_CLAIM" envDefault:"sub"`
 
