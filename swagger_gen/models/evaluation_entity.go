@@ -8,6 +8,8 @@ package models
 import (
 	"context"
 
+	"strconv"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -33,12 +35,46 @@ func (m *EvaluationEntity) AddField(key, value string) {
     m.EntityContext = v
 }
 
-func (m *EvaluationEntity) AddIfMissingField(key, value string) {
+func (m *EvaluationEntity) FieldToInt(key string) {
     v, _ := m.EntityContext.(map[string]interface{})
-	if (v[key] != nil) {
+
+	if v[key] == nil {
+        return
+    }
+	
+	intValue, ok := v[key].(int)
+
+	if ok {
 		return
 	}
+
+    intValue, err := strconv.Atoi(string(v[key].(string)))
+    if err == nil {
+		v[key] = intValue
+	}
+    m.EntityContext = v
+}
+
+func (m *EvaluationEntity) AddIfMissingField(key string, value string) {
+    v, _ := m.EntityContext.(map[string]interface{})
+    if v[key] != nil {
+        return
+    }
     v[key] = value
+    m.EntityContext = v
+}
+
+func (m *EvaluationEntity) AddIntIfMissingField(key string, value string) {
+    v, _ := m.EntityContext.(map[string]interface{})
+    if v[key] != nil {
+        return
+    }
+    intValue, err := strconv.Atoi(value)
+    if err != nil {
+		v[key] = value
+    } else {
+		v[key] = intValue
+	}
     m.EntityContext = v
 }
 

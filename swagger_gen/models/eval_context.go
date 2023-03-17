@@ -8,6 +8,7 @@ package models
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -53,12 +54,47 @@ func (m *EvalContext) AddField(key, value string) {
     m.EntityContext = v
 }
 
+func (m *EvalContext) FieldToInt(key string) {
+    v, _ := m.EntityContext.(map[string]interface{})
+
+	if v[key] == nil {
+        return
+    }
+	
+	intValue, ok := v[key].(int)
+
+	if ok {
+		return
+	}
+
+    intValue, err := strconv.Atoi(string(v[key].(string)))
+    if err == nil {
+		v[key] = intValue
+	}
+    m.EntityContext = v
+}
+
 func (m *EvalContext) AddIfMissingField(key, value string) {
     v, _ := m.EntityContext.(map[string]interface{})
 	if (v[key] != nil) {
 		return
 	}
     v[key] = value
+    m.EntityContext = v
+}
+
+func (m *EvalContext) AddIntIfMissingField(key, value string) {
+    v, _ := m.EntityContext.(map[string]interface{})
+	if (v[key] != nil) {
+		return
+	}
+
+	intValue, err := strconv.Atoi(value)
+    if err != nil {
+		v[key] = value
+    } else {
+		v[key] = intValue
+	}
     m.EntityContext = v
 }
 

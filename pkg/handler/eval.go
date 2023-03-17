@@ -49,12 +49,15 @@ func (e *eval) PostEvaluation(params evaluation.PostEvaluationParams) middleware
 			if claims, ok := token.Claims.(jwt.MapClaims); ok {
 				evalContext.AddIfMissingField("cus", string(claims["cus"].(string)))
 				evalContext.AddField("eml", string(claims["eml"].(string)))
-				evalContext.AddIfMissingField("cid", strconv.Itoa(int(claims["cid"].(float64))))
+				evalContext.AddIntIfMissingField("cid", strconv.Itoa(int(claims["cid"].(float64))))
 				evalContext.AddField("nam", string(claims["nam"].(string)))
 				evalContext.AddField("uid", strconv.Itoa(int(claims["uid"].(float64))))
 			}
 		}
 	}
+
+	evalContext.FieldToInt("cid")
+	evalContext.FieldToInt("uid")
 
 	if evalContext == nil {
 		return evaluation.NewPostEvaluationDefault(400).WithPayload(
@@ -90,12 +93,17 @@ func (e *eval) PostEvaluationBatch(params evaluation.PostEvaluationBatchParams) 
 					if claims, ok := token.Claims.(jwt.MapClaims); ok {
 						entity.AddIfMissingField("cus", string(claims["cus"].(string)))
 						entity.AddField("eml", string(claims["eml"].(string)))
-						entity.AddIfMissingField("cid", strconv.Itoa(int(claims["cid"].(float64))))
+						entity.AddIntIfMissingField("cid", strconv.Itoa(int(claims["cid"].(float64))))
 						entity.AddField("nam", string(claims["nam"].(string)))
 						entity.AddField("uid", strconv.Itoa(int(claims["uid"].(float64))))
 					}
+
 				}
+
 			}
+
+			entity.FieldToInt("cid")
+			entity.FieldToInt("uid")
 		}
 
 		if len(flagTags) > 0 {
@@ -193,7 +201,6 @@ var EvalFlag = func(evalContext models.EvalContext) *models.EvalResult {
 var EvalFlagWithContext = func(flag *entity.Flag, evalContext models.EvalContext) *models.EvalResult {
 	flagID := util.SafeUint(evalContext.FlagID)
 	flagKey := util.SafeString(evalContext.FlagKey)
-
 	if flag == nil {
 		emptyFlag := &entity.Flag{Model: gorm.Model{ID: flagID}, Key: flagKey}
 		return BlankResult(emptyFlag, evalContext, fmt.Sprintf("flagID %v not found or deleted", flagID))
