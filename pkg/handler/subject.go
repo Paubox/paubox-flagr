@@ -11,7 +11,7 @@ func getSubjectFromRequest(r *http.Request) string {
 		return ""
 	}
 
-	var token = r.Context().Value(config.TokenContextKey).(*config.DecodedToken)
+	var token = r.Context().Value(config.TokenContextKey).(config.DecodedToken)
 
 	if token.Email != "" {
 		return token.Email
