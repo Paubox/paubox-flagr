@@ -192,7 +192,7 @@ var Config = struct {
 	JWTAuthSecret               string   `env:"FLAGR_JWT_AUTH_SECRET" envDefault:"deez"`
 	JWTAuthNoTokenStatusCode    int      `env:"FLAGR_JWT_AUTH_NO_TOKEN_STATUS_CODE" envDefault:"401"` // "307" or "401"
 	JWTAuthNoTokenRedirectURL   string   `env:"FLAGR_JWT_AUTH_NO_TOKEN_REDIRECT_URL" envDefault:""`
-	JWTAuthUserProperty         string   `env:"FLAGR_JWT_AUTH_USER_PROPERTY" envDefault:"uid"`
+	JWTAuthUserProperty         string   `env:"FLAGR_JWT_AUTH_USER_PROPERTY" envDefault:"eml"`
 	BaseApiUrl                  string   `env:"BASE_API_URL" envDefault:"https://apx.paubox.com"` // JWTAuthUserClaim can be used as the indicator of a user for created_by or updated_by.
 	// E.g. sub, email, user, name, and etc in a JWT token.
 	JWTAuthUserClaim string `env:"FLAGR_JWT_AUTH_USER_CLAIM" envDefault:"sub"`
