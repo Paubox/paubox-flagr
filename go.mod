@@ -1,6 +1,6 @@
 module github.com/paubox/paubox-flagr
 
-go 1.19
+go 1.24.0
 
 require (
 	cloud.google.com/go v0.37.4
@@ -50,9 +50,9 @@ require (
 	github.com/yadvendar/negroni-newrelic-go-agent v0.0.0-20160803090806-3dc58758cb67
 	github.com/zhouzhuojie/conditions v0.2.3
 	github.com/zhouzhuojie/withtimeout v0.0.0-20190405051827-12b39eb2edd5
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
+	golang.org/x/net v0.48.0
 	google.golang.org/api v0.3.1
-	google.golang.org/grpc v1.19.0
+	google.golang.org/grpc v1.79.3
 	gopkg.in/DataDog/dd-trace-go.v1 v1.9.0
 )
 
@@ -64,10 +64,11 @@ require (
 	gorm.io/gorm v1.22.4
 )
 
+require google.golang.org/protobuf v1.36.10 // indirect
+
 require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/RaveNoX/go-jsonmerge v1.0.0
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
 	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -78,9 +79,9 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
-	github.com/golang/protobuf v1.2.0 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.4 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.0 // indirect
@@ -114,11 +115,11 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	go.mongodb.org/mongo-driver v1.7.5 // indirect
 	go.opencensus.io v0.20.1 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421 // indirect
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/crypto v0.46.0 // indirect
+	golang.org/x/oauth2 v0.34.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20190404172233-64821d5d2107 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
